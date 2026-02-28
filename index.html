@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>DevBase | The Universal Hub</title>
+    <script src="https://cdn.jsdelivr.net/pyodide/v0.23.4/full/pyodide.js"></script>
     <style>
         :root {
             --bg: #0d1117;
@@ -13,69 +14,119 @@
             --accent: #58a6ff;
             --terminal-header: #21262d;
             --success: #238636;
+            --error: #f85149;
         }
 
         body {
             background-color: var(--bg);
             color: var(--text);
             font-family: 'Segoe UI', system-ui, sans-serif;
-            margin: 0;
+            margin: 0; padding: 0;
             line-height: 1.6;
             overflow-x: hidden;
         }
 
         .container { max-width: 900px; margin: 0 auto; padding: 20px; }
 
-        /* Animations */
+        /* Reveal Animation */
         .reveal { opacity: 0; transform: translateY(20px); transition: all 0.6s ease-out; }
         .reveal.active { opacity: 1; transform: translateY(0); }
 
-        /* Status & Badge */
+        /* Header & Status */
+        header { padding: 60px 0 20px; }
+        h1 { font-size: 4rem; margin: 0; color: #fff; letter-spacing: -2px; }
         .status-bar { display: flex; align-items: center; gap: 10px; font-family: monospace; font-size: 0.8rem; margin-bottom: 10px; }
         .pulse { width: 8px; height: 8px; background: #27c93f; border-radius: 50%; animation: pulse 2s infinite; }
         @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(39, 201, 63, 0.7); } 70% { box-shadow: 0 0 0 10px rgba(39, 201, 63, 0); } 100% { box-shadow: 0 0 0 0 rgba(39, 201, 63, 0); } }
-        
-        .lang-badge { background: #23863633; color: #3fb950; border: 1px solid #238636; padding: 2px 8px; border-radius: 20px; font-family: monospace; font-size: 0.7rem; }
 
-        /* Header */
-        header { padding: 60px 0 30px; }
-        h1 { font-size: 4rem; margin: 0; color: #fff; letter-spacing: -2px; }
-        .glitch-text { color: var(--accent); font-family: monospace; }
+        /* The Mini Editor */
+        .editor-container {
+            background: #010409;
+            border: 1px solid #30363d;
+            border-radius: 8px;
+            margin: 40px 0;
+            overflow: hidden;
+            box-shadow: 0 15px 30px rgba(0,0,0,0.5);
+        }
+        .editor-header {
+            background: var(--terminal-header);
+            padding: 10px 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-family: monospace;
+            font-size: 0.8rem;
+        }
+        #python-input {
+            width: 100%;
+            height: 120px;
+            background: transparent;
+            color: #d7dae0;
+            border: none;
+            padding: 15px;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 1rem;
+            resize: none;
+            outline: none;
+        }
+        .editor-footer {
+            padding: 10px 15px;
+            background: #0d1117;
+            border-top: 1px solid #30363d;
+            display: flex;
+            justify-content: space-between;
+        }
+        #output {
+            padding: 15px;
+            background: #000;
+            color: #8b949e;
+            font-family: monospace;
+            font-size: 0.85rem;
+            min-height: 40px;
+            white-space: pre-wrap;
+        }
+        .run-btn {
+            background: var(--success);
+            color: white;
+            border: none;
+            padding: 5px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        .run-btn:disabled { background: #21262d; cursor: not-allowed; }
 
-        /* Marquee Styles */
+        /* Marquee */
         .marquee-container {
             background: #090c10;
-            border-y: 1px solid #30363d;
             padding: 15px 0;
             margin: 40px 0;
             overflow: hidden;
             white-space: nowrap;
-            position: relative;
+            border-top: 1px solid #30363d;
+            border-bottom: 1px solid #30363d;
         }
         .marquee-content {
             display: inline-block;
-            animation: marquee 40s linear infinite;
+            animation: marquee 30s linear infinite;
             font-family: monospace;
-            font-weight: bold;
             color: var(--accent);
-            font-size: 1.1rem;
         }
-        .marquee-content span { margin: 0 20px; text-transform: uppercase; }
+        .marquee-content span { margin: 0 20px; font-weight: bold; }
         @keyframes marquee { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
 
-        /* Rules Grid */
-        .rules-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 15px; margin: 40px 0; }
+        /* Rules */
+        .rules-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px; margin: 40px 0; }
         .rule-card { background: var(--card-bg); border: 1px solid #30363d; padding: 20px; border-radius: 8px; }
-        .rule-num { font-family: monospace; color: var(--accent); }
-        .rule-card h3 { margin: 10px 0 5px; color: #fff; font-size: 1rem; }
+        .rule-card h3 { margin: 0 0 10px 0; font-size: 1rem; color: #fff; }
         .rule-card p { font-size: 0.85rem; color: var(--text-dim); margin: 0; }
 
         /* CTA */
-        .cta-container { text-align: center; padding: 80px 0; }
-        .btn { background: var(--success); color: #fff; padding: 20px 50px; border-radius: 6px; text-decoration: none; font-weight: bold; font-size: 1.3rem; display: inline-block; transition: 0.2s; }
-        .btn:hover { transform: scale(1.05); background: #2ea043; }
+        .cta { text-align: center; padding: 60px 0; }
+        .btn { background: var(--accent); color: #fff; padding: 15px 40px; border-radius: 6px; text-decoration: none; font-weight: bold; transition: 0.2s; display: inline-block; }
+        .btn:hover { filter: brightness(1.2); transform: translateY(-2px); }
 
-        footer { text-align: center; padding: 40px; color: var(--text-dim); font-family: monospace; font-size: 0.7rem; }
+        footer { text-align: center; padding: 40px; font-family: monospace; color: var(--text-dim); font-size: 0.7rem; }
     </style>
 </head>
 <body>
@@ -83,62 +134,100 @@
 <div class="container">
     <div class="status-bar reveal">
         <div class="pulse"></div>
-        <span>DEVBASE_CORE: ACTIVE</span>
-        <span class="lang-badge">50+ STACK_SUPPORT</span>
+        <span>DEVBASE_CORE: ONLINE</span>
     </div>
 
     <header class="reveal">
-        <div class="glitch-text">> system.establish()</div>
         <h1>DevBase</h1>
-        <p style="font-size: 1.4rem; color: #fff;">The Universal Developer Hub.</p>
-        <p>Most servers focus on 1 or 2 languages. <strong>We host everything.</strong> Whether it's legacy systems, web-stack, or game engine scripting, you have a seat at the table.</p>
+        <p style="font-size: 1.2rem; max-width: 700px;">We host <strong>everything</strong>. From low-level C++ to game-scripting in Luau. Proof? Try the Python interpreter below.</p>
     </header>
-</div>
 
-<div class="marquee-container reveal">
-    <div class="marquee-content">
-        <span>C++</span> <span>Python</span> <span>Luau</span> <span>JavaScript</span> <span>Rust</span> <span>Go</span> <span>C#</span> <span>Java</span> <span>Swift</span> <span>Kotlin</span> <span>TypeScript</span> <span>PHP</span> <span>Ruby</span> <span>Haskell</span> <span>Zig</span> <span>Lua</span> <span>Assembly</span> <span>SQL</span> <span>C</span> <span>Dart</span> <span>Scala</span> <span>Elixir</span> <span>Fortran</span> <span>COBOL</span> <span>R</span> <span>MATLAB</span> <span>Objective-C</span> <span>F#</span> <span>Clojure</span> <span>Perl</span>
-        <span>C++</span> <span>Python</span> <span>Luau</span> <span>JavaScript</span> <span>Rust</span> <span>Go</span> <span>C#</span> <span>Java</span> <span>Swift</span> <span>Kotlin</span> <span>TypeScript</span> <span>PHP</span> <span>Ruby</span> <span>Haskell</span> <span>Zig</span> <span>Lua</span> <span>Assembly</span> <span>SQL</span> <span>C</span> <span>Dart</span> <span>Scala</span> <span>Elixir</span> <span>Fortran</span> <span>COBOL</span> <span>R</span> <span>MATLAB</span> <span>Objective-C</span> <span>F#</span> <span>Clojure</span> <span>Perl</span>
+    <div class="editor-container reveal">
+        <div class="editor-header">
+            <span>main.py</span>
+            <span id="status-text" style="color: var(--accent);">Loading Runtime...</span>
+        </div>
+        <textarea id="python-input" spellcheck="false">print("Hello from DevBase!")
+# Try some logic:
+x = [i**2 for i in range(5)]
+print(f"Squares: {x}")</textarea>
+        <div id="output">Output will appear here...</div>
+        <div class="editor-footer">
+            <span style="color: var(--text-dim); font-size: 0.7rem;">Powered by Pyodide (WASM)</span>
+            <button class="run-btn" id="run-btn" disabled>Execute</button>
+        </div>
     </div>
-</div>
 
-<div class="container">
+    <div class="marquee-container reveal">
+        <div class="marquee-content">
+            <span>C++</span> <span>PYTHON</span> <span>LUAU</span> <span>RUST</span> <span>GO</span> <span>JAVA</span> <span>C#</span> <span>ZIG</span> <span>HASKELL</span> <span>ASSEMBLY</span> <span>TYPESCRIPT</span> <span>PHP</span>
+            <span>C++</span> <span>PYTHON</span> <span>LUAU</span> <span>RUST</span> <span>GO</span> <span>JAVA</span> <span>C#</span> <span>ZIG</span> <span>HASKELL</span> <span>ASSEMBLY</span> <span>TYPESCRIPT</span> <span>PHP</span>
+        </div>
+    </div>
+
     <div class="rules-grid">
         <div class="rule-card reveal">
-            <span class="rule-num">01</span>
-            <h3>Universal Respect</h3>
-            <p>No elitism. No gatekeeping. Noob-shaming is a ban-able offense.</p>
+            <h3>01. No Elitism</h3>
+            <p>Whether you're writing machine code or Luau, respect is mandatory.</p>
         </div>
         <div class="rule-card reveal">
-            <span class="rule-num">02</span>
-            <h3>15-Minute Rule</h3>
-            <p>Attempt to solve it yourself first. Then post code + error + intent.</p>
+            <h3>02. The 15m Rule</h3>
+            <p>Check the docs before you ask. Provide code and error logs.</p>
         </div>
         <div class="rule-card reveal">
-            <span class="rule-num">03</span>
-            <h3>Logic First</h3>
-            <p>AI is a tool, not a replacement. You must understand the code you post.</p>
+            <h3>03. Skills Mandatory</h3>
+            <p>AI is a tool. If you don't understand the logic, you aren't a dev.</p>
         </div>
     </div>
 
-    <div class="cta-container reveal">
-        <a href="https://discord.gg/TTZpGCQf32" class="btn">Connect to Server</a>
-        <p style="margin-top: 20px; font-size: 0.8rem; color: var(--text-dim);">NO LIMITS. NO BORDERS. JUST CODE.</p>
+    <div class="cta reveal">
+        <a href="https://discord.gg/TTZpGCQf32" class="btn">Establish Connection (Join Discord)</a>
     </div>
 
     <footer>
-        &copy; 2024 DevBase // Failure to compile = Kick()
+        &copy; 2024 DevBase // exit(0)
     </footer>
 </div>
 
 <script>
+    // Intersection Observer
     const observer = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-            if (entry.isIntersecting) entry.target.classList.add('active');
-        });
+        entries.forEach(entry => { if (entry.isIntersecting) entry.target.classList.add('active'); });
     }, { threshold: 0.1 });
-
     document.querySelectorAll('.reveal').forEach((el) => observer.observe(el));
+
+    // Python Logic
+    const output = document.getElementById("output");
+    const runBtn = document.getElementById("run-btn");
+    const statusText = document.getElementById("status-text");
+
+    async function main() {
+        let pyodide = await loadPyodide();
+        statusText.innerText = "Runtime Ready";
+        statusText.style.color = "#27c93f";
+        runBtn.disabled = false;
+
+        runBtn.addEventListener("click", async () => {
+            const code = document.getElementById("python-input").value;
+            output.innerText = "Running...";
+            try {
+                // Redirect python print to our output div
+                pyodide.runPython(`
+                    import sys
+                    import io
+                    sys.stdout = io.StringIO()
+                `);
+                await pyodide.runPythonAsync(code);
+                const stdout = pyodide.runPython("sys.stdout.getvalue()");
+                output.innerText = stdout || "Code executed (no output).";
+                output.style.color = "#8b949e";
+            } catch (err) {
+                output.innerText = err;
+                output.style.color = "#f85149";
+            }
+        });
+    }
+    main();
 </script>
 
 </body>
