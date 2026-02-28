@@ -9,157 +9,136 @@
             --bg: #0d1117;
             --card-bg: #161b22;
             --text: #c9d1d9;
+            --text-dim: #8b949e;
             --accent: #58a6ff;
             --terminal-header: #21262d;
-            --string: #a5d6ff;
-            --key: #79c0ff;
+            --success: #238636;
         }
 
         body {
             background-color: var(--bg);
             color: var(--text);
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Segoe UI', system-ui, sans-serif;
             margin: 0;
             line-height: 1.6;
             overflow-x: hidden;
         }
 
-        /* Smooth Scroll Reveal Classes */
-        .reveal {
-            opacity: 0;
-            transform: translateY(30px);
-            transition: all 0.8s ease-out;
-        }
+        .container { max-width: 900px; margin: 0 auto; padding: 20px; }
 
-        .reveal.active {
-            opacity: 1;
-            transform: translateY(0);
-        }
+        /* Animations */
+        .reveal { opacity: 0; transform: translateY(20px); transition: all 0.6s ease-out; }
+        .reveal.active { opacity: 1; transform: translateY(0); }
 
-        .container {
-            max-width: 900px;
-            margin: 0 auto;
-            padding: 40px 20px;
-        }
+        /* Status & Badge */
+        .status-bar { display: flex; align-items: center; gap: 10px; font-family: monospace; font-size: 0.8rem; margin-bottom: 10px; }
+        .pulse { width: 8px; height: 8px; background: #27c93f; border-radius: 50%; animation: pulse 2s infinite; }
+        @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(39, 201, 63, 0.7); } 70% { box-shadow: 0 0 0 10px rgba(39, 201, 63, 0); } 100% { box-shadow: 0 0 0 0 rgba(39, 201, 63, 0); } }
+        
+        .lang-badge { background: #23863633; color: #3fb950; border: 1px solid #238636; padding: 2px 8px; border-radius: 20px; font-family: monospace; font-size: 0.7rem; }
 
-        header {
-            text-align: center;
-            padding: 100px 0 50px;
-        }
+        /* Header */
+        header { padding: 60px 0 30px; }
+        h1 { font-size: 4rem; margin: 0; color: #fff; letter-spacing: -2px; }
+        .glitch-text { color: var(--accent); font-family: monospace; }
 
-        h1 { font-size: 3rem; margin-bottom: 10px; color: #fff; }
-
-        /* Terminal Styling */
-        .terminal {
-            background: var(--card-bg);
-            border: 1px solid #30363d;
-            border-radius: 6px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.4);
-            overflow: hidden;
+        /* Marquee Styles */
+        .marquee-container {
+            background: #090c10;
+            border-y: 1px solid #30363d;
+            padding: 15px 0;
             margin: 40px 0;
+            overflow: hidden;
+            white-space: nowrap;
+            position: relative;
         }
-
-        .terminal-header {
-            background: var(--terminal-header);
-            padding: 10px 15px;
-            display: flex;
-            gap: 8px;
-        }
-
-        .dot { width: 12px; height: 12px; border-radius: 50%; }
-        .red { background: #ff5f56; } .yellow { background: #ffbd2e; } .green { background: #27c93f; }
-
-        .terminal-body {
-            padding: 20px;
-            font-family: 'Consolas', 'Monaco', monospace;
-            font-size: 0.95rem;
-            color: var(--text);
-        }
-
-        .pitch-text {
-            font-size: 1.2rem;
-            border-left: 4px solid var(--accent);
-            padding-left: 20px;
-            margin: 60px 0;
-        }
-
-        .btn {
+        .marquee-content {
             display: inline-block;
-            background: var(--accent);
-            color: #fff;
-            padding: 15px 35px;
-            border-radius: 6px;
-            text-decoration: none;
+            animation: marquee 40s linear infinite;
+            font-family: monospace;
             font-weight: bold;
+            color: var(--accent);
             font-size: 1.1rem;
-            transition: transform 0.2s, filter 0.2s;
         }
+        .marquee-content span { margin: 0 20px; text-transform: uppercase; }
+        @keyframes marquee { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
 
-        .btn:hover {
-            transform: scale(1.05);
-            filter: brightness(1.1);
-        }
+        /* Rules Grid */
+        .rules-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 15px; margin: 40px 0; }
+        .rule-card { background: var(--card-bg); border: 1px solid #30363d; padding: 20px; border-radius: 8px; }
+        .rule-num { font-family: monospace; color: var(--accent); }
+        .rule-card h3 { margin: 10px 0 5px; color: #fff; font-size: 1rem; }
+        .rule-card p { font-size: 0.85rem; color: var(--text-dim); margin: 0; }
 
-        .code-key { color: var(--key); }
-        .code-val { color: var(--string); }
+        /* CTA */
+        .cta-container { text-align: center; padding: 80px 0; }
+        .btn { background: var(--success); color: #fff; padding: 20px 50px; border-radius: 6px; text-decoration: none; font-weight: bold; font-size: 1.3rem; display: inline-block; transition: 0.2s; }
+        .btn:hover { transform: scale(1.05); background: #2ea043; }
 
-        footer { text-align: center; padding: 50px; font-size: 0.8rem; color: #8b949e; }
+        footer { text-align: center; padding: 40px; color: var(--text-dim); font-family: monospace; font-size: 0.7rem; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <header class="reveal">
-        <h1>DevBase</h1>
-        <p>A hub for those who speak in logic.</p>
-    </header>
+    <div class="status-bar reveal">
+        <div class="pulse"></div>
+        <span>DEVBASE_CORE: ACTIVE</span>
+        <span class="lang-badge">50+ STACK_SUPPORT</span>
+    </div>
 
-    <div class="terminal reveal">
-        <div class="terminal-header">
-            <div class="dot red"></div>
-            <div class="dot yellow"></div>
-            <div class="dot green"></div>
+    <header class="reveal">
+        <div class="glitch-text">> system.establish()</div>
+        <h1>DevBase</h1>
+        <p style="font-size: 1.4rem; color: #fff;">The Universal Developer Hub.</p>
+        <p>Most servers focus on 1 or 2 languages. <strong>We host everything.</strong> Whether it's legacy systems, web-stack, or game engine scripting, you have a seat at the table.</p>
+    </header>
+</div>
+
+<div class="marquee-container reveal">
+    <div class="marquee-content">
+        <span>C++</span> <span>Python</span> <span>Luau</span> <span>JavaScript</span> <span>Rust</span> <span>Go</span> <span>C#</span> <span>Java</span> <span>Swift</span> <span>Kotlin</span> <span>TypeScript</span> <span>PHP</span> <span>Ruby</span> <span>Haskell</span> <span>Zig</span> <span>Lua</span> <span>Assembly</span> <span>SQL</span> <span>C</span> <span>Dart</span> <span>Scala</span> <span>Elixir</span> <span>Fortran</span> <span>COBOL</span> <span>R</span> <span>MATLAB</span> <span>Objective-C</span> <span>F#</span> <span>Clojure</span> <span>Perl</span>
+        <span>C++</span> <span>Python</span> <span>Luau</span> <span>JavaScript</span> <span>Rust</span> <span>Go</span> <span>C#</span> <span>Java</span> <span>Swift</span> <span>Kotlin</span> <span>TypeScript</span> <span>PHP</span> <span>Ruby</span> <span>Haskell</span> <span>Zig</span> <span>Lua</span> <span>Assembly</span> <span>SQL</span> <span>C</span> <span>Dart</span> <span>Scala</span> <span>Elixir</span> <span>Fortran</span> <span>COBOL</span> <span>R</span> <span>MATLAB</span> <span>Objective-C</span> <span>F#</span> <span>Clojure</span> <span>Perl</span>
+    </div>
+</div>
+
+<div class="container">
+    <div class="rules-grid">
+        <div class="rule-card reveal">
+            <span class="rule-num">01</span>
+            <h3>Universal Respect</h3>
+            <p>No elitism. No gatekeeping. Noob-shaming is a ban-able offense.</p>
         </div>
-        <div class="terminal-body">
-            <p><span class="code-key">const</span> devBase = {</p>
-            <p style="padding-left: 20px;"><span class="code-key">mission</span>: <span class="code-val">"Universal Support"</span>,</p>
-            <p style="padding-left: 20px;"><span class="code-key">languages</span>: [<span class="code-val">"C++"</span>, <span class="code-val">"Python"</span>, <span class="code-val">"Luau"</span>, <span class="code-val">"Rust"</span>, <span class="code-val">"Go"</span>, <span class="code-val">"Web"</span>],</p>
-            <p style="padding-left: 20px;"><span class="code-key">noobFriendly</span>: <span class="code-key">true</span></p>
-            <p>};</p>
+        <div class="rule-card reveal">
+            <span class="rule-num">02</span>
+            <h3>15-Minute Rule</h3>
+            <p>Attempt to solve it yourself first. Then post code + error + intent.</p>
+        </div>
+        <div class="rule-card reveal">
+            <span class="rule-num">03</span>
+            <h3>Logic First</h3>
+            <p>AI is a tool, not a replacement. You must understand the code you post.</p>
         </div>
     </div>
 
-    <section class="pitch-text reveal">
-        <h2>Why join this server?</h2>
-        <p>Most servers are either for 1 specific language or maybe 2, 3 languages. <strong>We host everything.</strong> Whether you're a low-level systems engineer or a game dev, you have a home here.</p>
-    </section>
-
-    <div style="text-align: center;" class="reveal">
-        <a href="#" class="btn">Initialize Connection (Join Discord)</a>
+    <div class="cta-container reveal">
+        <a href="https://discord.gg/TTZpGCQf32" class="btn">Connect to Server</a>
+        <p style="margin-top: 20px; font-size: 0.8rem; color: var(--text-dim);">NO LIMITS. NO BORDERS. JUST CODE.</p>
     </div>
 
     <footer>
-        &copy; 2026 DevBase. Failure to compile = Kick().
+        &copy; 2024 DevBase // Failure to compile = Kick()
     </footer>
 </div>
 
 <script>
-    // Intersection Observer for Scroll Effects
-    const observerOptions = {
-        threshold: 0.1
-    };
-
     const observer = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
-            if (entry.isIntersecting) {
-                entry.target.classList.add('active');
-            }
+            if (entry.isIntersecting) entry.target.classList.add('active');
         });
-    }, observerOptions);
+    }, { threshold: 0.1 });
 
-    document.querySelectorAll('.reveal').forEach((el) => {
-        observer.observe(el);
-    });
+    document.querySelectorAll('.reveal').forEach((el) => observer.observe(el));
 </script>
 
 </body>
